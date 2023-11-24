@@ -1,11 +1,18 @@
 <script setup>
-
+// 
 </script>
 
 <template>
-  <div class="w-auto border-2">
-    <div v-for="(boxi, indexYaxis) in 5" class="flex flex-row justify-center font-bold">
-      <div v-for="(boxii, indexXaxis) in 3" :id="(indexXaxisi+1)+'-'+(indexYaxis+1)" class="border p-5">{{indexXaxis+1}}-{{indexYaxis+1}}</div>
+  <div class="flex flex-col-reverse w-auto border-2">
+    <div v-for="(row, indexYaxis) in 10" class="flex flex-row justify-center">
+      <div 
+        v-for="(box, indexXaxis) in 5" 
+        :id="(indexXaxisi+1)+'-'+(indexYaxis+1)" 
+        class="border border-black w-20 h-20 pl-1"
+        :class="((indexXaxis+1) + (indexYaxis+1)) % 2 === 0 ? 'bg-green-700' : 'bg-green-900'"  
+      >
+        {{indexXaxis+1}}-{{indexYaxis+1}}
+      </div>
     </div>
   </div>
 </template>
