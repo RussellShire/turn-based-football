@@ -19,13 +19,21 @@
 
     // Change X axis of startLocation by each element in Range and add to adjacentArray
     distanceRange.map(modifier => {
-      adjacentArray.push([startLocation[0] + modifier, startLocation[1]])
+      const newXaxis = startLocation[0] + modifier;
+
+      if (newXaxis > 0 && newXaxis <= cols.value) { // check result is in bounds of the grid
+        adjacentArray.push([newXaxis, startLocation[1]])
+      }
     })
 
     // Take each elem in adjecentArray and modify by each elem in Range and add to adjacentArray 
     adjacentArray.map(adjacentBox => {
       distanceRange.map(modifier => {
-        adjacentArray.push([adjacentBox[0], adjacentBox[1] + modifier])
+        const newYaxis = adjacentBox[1] + modifier;
+
+        if (newYaxis > 0 && newYaxis <= rows.value) {
+          adjacentArray.push([adjacentBox[0], newYaxis])
+        }
       })
     })
 
@@ -33,7 +41,7 @@
   }
 
   // TESTING
-  console.log(findAdjacent([1,1], 1))
+  console.log(findAdjacent([2,2], 2))
 </script>
 
 <template>
