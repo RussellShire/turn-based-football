@@ -11,7 +11,7 @@
     }
     return ans;
   }
-  
+
   const findAdjacent = (startLocation, distance) => {
     const distanceRange = range(distance *-1, distance).filter(num => num != 0);
 
@@ -40,8 +40,19 @@
     return adjacentArray;
   }
 
-  // TESTING
-  console.log(findAdjacent([2,2], 2))
+  const currentlyHighlighted = ref(findAdjacent([4,8], 2));
+
+  const isHighlighted = (box) => {
+    let match = false;
+
+    currentlyHighlighted.value.map(highlighted => {
+      if (highlighted[0] === box[0] && highlighted[1] === box[1]){
+        match = true
+      }
+
+    })
+    return match;
+  }
 </script>
 
 <template>
@@ -55,7 +66,7 @@
         v-for="(box, indexXaxis) in cols" 
         :id="(indexXaxis+1)+'-'+(indexYaxis+1)"
         :key="indexXaxis"
-        :class="((indexXaxis+1) + (indexYaxis+1)) % 2 === 0 ? 'bg-green-700' : 'bg-green-900'"
+        :class="isHighlighted([(indexXaxis+1), (indexYaxis+1)]) ? ' bg-red-600' : ((indexXaxis+1) + (indexYaxis+1)) % 2 === 0 ? 'bg-green-700' : 'bg-green-900'"
         class="border border-black w-20 h-20 pl-1"  
       >
         {{indexXaxis+1}}-{{indexYaxis+1}}
