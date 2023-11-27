@@ -1,5 +1,19 @@
 <script setup>
-// 
+  const range = (start, end) => {
+    var ans = [];
+    for (let i = start; i <= end; i++) {
+        ans.push(i);
+    }
+    return ans;
+  }
+  
+  const findAdjecent = (startLocation, distance) => {
+    const distanceRange = range(distance *-1, distance).filter(num => num != 0)
+
+    return distanceRange;
+  }
+
+  console.log(findAdjecent((3,5), 3))
 </script>
 
 <template>
@@ -11,7 +25,7 @@
     >
       <div 
         v-for="(box, indexXaxis) in 5" 
-        :id="(indexXaxisi+1)+'-'+(indexYaxis+1)"
+        :id="(indexXaxis+1)+'-'+(indexYaxis+1)"
         :key="indexXaxis"
         :class="((indexXaxis+1) + (indexYaxis+1)) % 2 === 0 ? 'bg-green-700' : 'bg-green-900'"
         class="border border-black w-20 h-20 pl-1"  
