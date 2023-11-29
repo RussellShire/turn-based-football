@@ -2,7 +2,7 @@
   import { ref } from 'vue';
 
   const rows = ref(10)
-  const cols = ref(5)
+  const cols = ref(7)
 
   const range = (start, end) => {
     var ans = [];
@@ -40,7 +40,11 @@
     return adjacentArray;
   }
 
-  const currentlyHighlighted = ref(findAdjacent([4,8], 2));
+  const currentlyHighlighted = ref([]);
+
+  const highLightAdjacent = (box, distance) => {
+    currentlyHighlighted.value = findAdjacent(box, distance);
+  }
 
   const isHighlighted = (box) => {
     let match = false;
@@ -63,7 +67,8 @@
       class="flex flex-row justify-center" 
     >
       <div 
-        v-for="(box, indexXaxis) in cols" 
+        v-for="(box, indexXaxis) in cols"
+        @click="highLightAdjacent([(indexXaxis+1), (indexYaxis+1)], 2)"
         :id="(indexXaxis+1)+'-'+(indexYaxis+1)"
         :key="indexXaxis"
         :class="isHighlighted([(indexXaxis+1), (indexYaxis+1)]) ? ' bg-red-600' : ((indexXaxis+1) + (indexYaxis+1)) % 2 === 0 ? 'bg-green-700' : 'bg-green-900'"
