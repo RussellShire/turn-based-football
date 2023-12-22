@@ -43,7 +43,9 @@
 
   const currentlyHighlighted = ref([]);
 
-  const highLightAdjacent = (box, distance) => {
+  const toggleHighLightAdjacent = (box, distance) => {
+    currentlyHighlighted.value.length ? 
+    currentlyHighlighted.value = [] : 
     currentlyHighlighted.value = findAdjacent(box, distance);
   }
 
@@ -57,6 +59,20 @@
 
     })
     return match;
+  }
+
+  const isValidMove = (box, distance) => {
+    let match = false;
+    const validMoves = findAdjacent(box, distance)
+
+    validMoves.map(valid => {
+      if (valid[0] === box[0] && valid[1] === box[1]){
+        match = true
+      }
+    })
+
+    return match;
+
   }
 
   // FYNN's first code
@@ -84,26 +100,18 @@
   
   function dragstartHandler(ev) {
     // Add the target element's id to the data transfer object
-    ev.dataTransfer.setData("text/plain", ev.target.id);
-    console.log('Hello Fynn')
+    // const startPosition = ev.target.id;
+    // console.log(startPosition)
   }
 
-  function dropHandler(ev) {
-    ev.preventDefault();
+  function dropHandler(location) {
     // Get the id of the target and add the moved element to the target's DOM
-    const data = ev.dataTransfer.getData("text/plain");
-    console.log(data);
-    ballPosition.value = data;
+    // const data = ev.dataTransfer.getData("text/plain");
+    // console.log(location);
+    ballPosition.value = location;
     // ev.target.appendChild(document.getElementById(data));
   
   }
-
-  window.addEventListener("DOMContentLoaded", () => {
-    // Get the element by id
-    const element = document.getElementById(ballPosition.value);
-    // Add the ondragstart event listener
-    element.addEventListener("dragstart", dragstartHandler);
-  });
 </script>
 
 <template>
@@ -117,24 +125,23 @@
         v-for="(box, indexXaxis) in cols"
         :key="indexXaxis"
         :class="isHighlighted([(indexXaxis+1), (indexYaxis+1)]) ? ' bg-red-600' : ((indexXaxis+1) + (indexYaxis+1)) % 2 === 0 ? 'bg-green-700' : 'bg-green-900'"
-        class="border border-red w-20 h-20 pl-1"  
-        @click="highLightAdjacent([(indexXaxis+1), (indexYaxis+1)], 2)"
-
+        class="border w-20 h-20 pl-1 flex justify-center items-center relative"  
+        :id="(indexXaxis+1)+'-'+(indexYaxis+1)"
+        @drop="isValidMove([(indexXaxis+1), (indexYaxis+1)], 2) ? dropHandler((indexXaxis+1)+'-'+(indexYaxis+1)) : ''"
+        @dragenter.prevent
+        @dragover.prevent
       >
-        {{indexXaxis+1}}-{{indexYaxis+1}}
-        <div 
-          class="flex justify-center items-center" 
-        >
+        <div class="absolute top-0 left-1">{{indexXaxis+1}}-{{indexYaxis+1}}</div>
+        
           <div 
             v-if="ballPosition === (indexXaxis+1)+'-'+(indexYaxis+1)" 
-            :id="(indexXaxis+1)+'-'+(indexYaxis+1)"
+            :id="'ball'+(indexXaxis+1)+'-'+(indexYaxis+1)"
             class="w-8 h-8 bg-white rounded-3xl"
+            @click="toggleHighLightAdjacent([(indexXaxis+1), (indexYaxis+1)], 2)"
             draggable="true"
-            @ondrop="dropHandler(event)"
           >
           <!-- <div class="text-red-500">hello</div>
           <button @click="test" v-if="showButton" class="px-2 bg-black rounded">press</button> -->
-          </div>  
         </div>
       </div>
     </div>
