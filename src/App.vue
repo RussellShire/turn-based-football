@@ -12,6 +12,8 @@
     return ans;
   }
 
+  const ballPosition = ref('4-7');
+
   const findAdjacent = (startLocation, distance) => {
     const distanceRange = range(distance *-1, distance).filter(num => num != 0);
 
@@ -68,13 +70,18 @@
     >
       <div 
         v-for="(box, indexXaxis) in cols"
-        @click="highLightAdjacent([(indexXaxis+1), (indexYaxis+1)], 2)"
-        :id="(indexXaxis+1)+'-'+(indexYaxis+1)"
+        @click="highLightAdjacent([(indexXaxis+1), (indexYaxis+1)], 1)"
         :key="indexXaxis"
         :class="isHighlighted([(indexXaxis+1), (indexYaxis+1)]) ? ' bg-red-600' : ((indexXaxis+1) + (indexYaxis+1)) % 2 === 0 ? 'bg-green-700' : 'bg-green-900'"
         class="border border-black w-20 h-20 pl-1"  
       >
         {{indexXaxis+1}}-{{indexYaxis+1}}
+        <div 
+          :id="(indexXaxis+1)+'-'+(indexYaxis+1)"
+          class="flex justify-center items-center" 
+        >
+          <div v-if="ballPosition === (indexXaxis+1)+'-'+(indexYaxis+1)" class="w-8 h-8 bg-white rounded-3xl"></div>  
+        </div>
       </div>
     </div>
   </div>
