@@ -1,7 +1,7 @@
 <script setup>
   import { ref } from 'vue';
 
-  const rows = ref(15)
+  const rows = ref(10)
   const cols = ref(5)
   const ballPosition = ref('3-7');
 
@@ -61,20 +61,6 @@
     return match;
   }
 
-  const isValidMove = (box, distance) => {
-    let match = false;
-    const validMoves = findAdjacent(box, distance)
-
-    validMoves.map(valid => {
-      if (valid[0] === box[0] && valid[1] === box[1]){
-        match = true
-      }
-    })
-
-    return match;
-
-  }
-
   // FYNN's first code
   // const pressCount = ref(0)
   // const showButton = ref(true)
@@ -124,10 +110,10 @@
       <div 
         v-for="(box, indexXaxis) in cols"
         :key="indexXaxis"
-        :class="isHighlighted([(indexXaxis+1), (indexYaxis+1)]) ? ' bg-red-600' : ((indexXaxis+1) + (indexYaxis+1)) % 2 === 0 ? 'bg-green-700' : 'bg-green-900'"
-        class="border w-20 h-20 pl-1 flex justify-center items-center relative"  
+        :class="isHighlighted([(indexXaxis+1), (indexYaxis+1)]) ? ' bg-blue-600' : ((indexXaxis+1) + (indexYaxis+1)) % 2 === 0 ? 'bg-green-700' : 'bg-green-900'"
+        class="border border-black w-20 h-20 pl-1 flex justify-center items-center relative"  
         :id="(indexXaxis+1)+'-'+(indexYaxis+1)"
-        @drop="isValidMove([(indexXaxis+1), (indexYaxis+1)], 2) ? dropHandler((indexXaxis+1)+'-'+(indexYaxis+1)) : ''"
+        @drop="isHighlighted([(indexXaxis+1), (indexYaxis+1)]) ? dropHandler((indexXaxis+1)+'-'+(indexYaxis+1)) : ''"
         @dragenter.prevent
         @dragover.prevent
       >
