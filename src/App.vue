@@ -5,6 +5,43 @@
   const cols = ref(5)
   const ballPosition = ref('3-7');
 
+  const players = [
+    {
+      name: 'playerOne',
+      hairColour: 'bg-black',
+      shirtColour: 'bg-red-500',
+      position: '2-5',
+      direction: 'bottom',
+    },
+    {
+      name: 'playerTwo',
+      hairColour: 'bg-yellow-500',
+      shirtColour: 'bg-blue-500',
+      position: '2-5',
+      direction: 'top',
+    }
+  ]
+
+  const placePlayers = () => {
+    players.forEach(player => {
+      console.log(player)
+      let playerBodyDiv = document.getElementById(player.name)
+
+      if (!playerBodyDiv) {
+        playerBodyDiv = document.createElement('div')
+        const playerHeadDiv = document.createElement('div')
+        playerBodyDiv.id = player.name
+        playerBodyDiv.appendChild(playerHeadDiv)
+        playerBodyDiv.setAttribute('class', 'px-4 rounded-xl ' + player.shirtColour)
+        playerHeadDiv.setAttribute('class', 'p-3 rounded-xl ' + player.hairColour)
+      }
+      
+      const playerLocation = document.getElementById(player.direction + '-player' + player.position)
+      playerLocation.appendChild(playerBodyDiv)
+    })
+  }
+
+
   const range = (start, end) => {
     var ans = [];
     for (let i = start; i <= end; i++) {
@@ -47,6 +84,8 @@
     currentlyHighlighted.value.length ? 
     currentlyHighlighted.value = [] : 
     currentlyHighlighted.value = findAdjacent(box, distance);
+  placePlayers();
+
   }
 
   const isHighlighted = (box) => {
@@ -111,24 +150,28 @@
         v-for="(box, indexXaxis) in cols"
         :key="indexXaxis"
         :class="isHighlighted([(indexXaxis+1), (indexYaxis+1)]) ? ' bg-blue-600' : ((indexXaxis+1) + (indexYaxis+1)) % 2 === 0 ? 'bg-green-700' : 'bg-green-900'"
-        class="border border-black w-20 h-20 pl-1 flex justify-center items-center relative"  
+        class="border border-black w-20 h-20 pl-1 flex flex-col justify-center items-center relative"  
         :id="(indexXaxis+1)+'-'+(indexYaxis+1)"
         @drop="isHighlighted([(indexXaxis+1), (indexYaxis+1)]) ? dropHandler((indexXaxis+1)+'-'+(indexYaxis+1)) : ''"
         @dragenter.prevent
         @dragover.prevent
       >
         <div class="absolute top-0 left-1">{{indexXaxis+1}}-{{indexYaxis+1}}</div>
-        
+          <div :id="'top-player' + (indexXaxis+1)+'-'+(indexYaxis+1)"></div>
           <div 
             v-if="ballPosition === (indexXaxis+1)+'-'+(indexYaxis+1)" 
             :id="'ball'+(indexXaxis+1)+'-'+(indexYaxis+1)"
             class="w-8 h-8 bg-white rounded-3xl"
             @click="toggleHighLightAdjacent([(indexXaxis+1), (indexYaxis+1)], 2)"
             draggable="true"
-          >
+          ></div>
+          <div :id="'bottom-player' + (indexXaxis+1)+'-'+(indexYaxis+1)">
+            <!-- <div class="px-4 bg-red-500 rounded-xl">
+              <div class="p-3 rounded-xl bg-black"></div>
+            </div> -->
+          </div>
           <!-- <div class="text-red-500">hello</div>
           <button @click="test" v-if="showButton" class="px-2 bg-black rounded">press</button> -->
-        </div>
       </div>
     </div>
   </div>
