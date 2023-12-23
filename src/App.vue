@@ -42,7 +42,7 @@
       direction: 'top',
     },
     {
-      name: 'playerSux',
+      name: 'playerSix',
       hairColour: 'bg-yellow-800',
       shirtColour: 'bg-red-500',
       position: '4-3',
@@ -108,9 +108,7 @@
 
   const currentlyHighlighted = ref([]);
 
-  const toggleHighLightAdjacent = (box, distance) => {
-    currentlyHighlighted.value.length ? 
-    currentlyHighlighted.value = [] : 
+  const highLightAdjacent = (box, distance) => { 
     currentlyHighlighted.value = findAdjacent(box, distance);
 
   }
@@ -188,7 +186,7 @@
           v-if="ballPosition === (indexXaxis+1)+'-'+(indexYaxis+1)" 
           :id="'ball'+(indexXaxis+1)+'-'+(indexYaxis+1)"
           class="w-8 h-8 bg-white rounded-3xl"
-          @click="toggleHighLightAdjacent([(indexXaxis+1), (indexYaxis+1)], 2)"
+          @mousedown="highLightAdjacent([(indexXaxis+1), (indexYaxis+1)], 2)"
           draggable="true"
         ></div>
         <div :id="'bottom-player' + (indexXaxis+1)+'-'+(indexYaxis+1)"></div>
