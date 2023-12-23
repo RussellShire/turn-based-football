@@ -1,5 +1,5 @@
 <script setup>
-  import { ref } from 'vue';
+  import { onMounted, ref } from 'vue';
 
   const rows = ref(10)
   const cols = ref(5)
@@ -29,7 +29,7 @@
     },
     {
       name: 'playerFour',
-      hairColour: 'bg-orange-800',
+      hairColour: 'bg-orange-900',
       shirtColour: 'bg-red-500',
       position: '3-7',
       direction: 'bottom',
@@ -112,7 +112,6 @@
     currentlyHighlighted.value.length ? 
     currentlyHighlighted.value = [] : 
     currentlyHighlighted.value = findAdjacent(box, distance);
-  placePlayers();
 
   }
 
@@ -158,13 +157,12 @@
   }
 
   function dropHandler(location) {
-    // Get the id of the target and add the moved element to the target's DOM
-    // const data = ev.dataTransfer.getData("text/plain");
-    // console.log(location);
     ballPosition.value = location;
-    // ev.target.appendChild(document.getElementById(data));
-  
   }
+  onMounted(() => {
+    placePlayers();
+  })
+
 </script>
 
 <template>
