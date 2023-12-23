@@ -16,10 +16,38 @@
     {
       name: 'playerTwo',
       hairColour: 'bg-yellow-500',
-      shirtColour: 'bg-blue-500',
-      position: '2-5',
+      shirtColour: 'bg-blue-400',
+      position: '4-5',
       direction: 'top',
-    }
+    },
+    {
+      name: 'playerThree',
+      hairColour: 'bg-red-300',
+      shirtColour: 'bg-blue-400',
+      position: '2-7',
+      direction: 'top',
+    },
+    {
+      name: 'playerFour',
+      hairColour: 'bg-orange-800',
+      shirtColour: 'bg-red-500',
+      position: '3-7',
+      direction: 'bottom',
+    },
+    {
+      name: 'playerFive',
+      hairColour: 'bg-black',
+      shirtColour: 'bg-blue-400',
+      position: '4-8',
+      direction: 'top',
+    },
+    {
+      name: 'playerSux',
+      hairColour: 'bg-yellow-800',
+      shirtColour: 'bg-red-500',
+      position: '4-3',
+      direction: 'bottom',
+    },
   ]
 
   const placePlayers = () => {
@@ -157,19 +185,15 @@
         @dragover.prevent
       >
         <div class="absolute top-0 left-1">{{indexXaxis+1}}-{{indexYaxis+1}}</div>
-          <div :id="'top-player' + (indexXaxis+1)+'-'+(indexYaxis+1)"></div>
-          <div 
-            v-if="ballPosition === (indexXaxis+1)+'-'+(indexYaxis+1)" 
-            :id="'ball'+(indexXaxis+1)+'-'+(indexYaxis+1)"
-            class="w-8 h-8 bg-white rounded-3xl"
-            @click="toggleHighLightAdjacent([(indexXaxis+1), (indexYaxis+1)], 2)"
-            draggable="true"
-          ></div>
-          <div :id="'bottom-player' + (indexXaxis+1)+'-'+(indexYaxis+1)">
-            <!-- <div class="px-4 bg-red-500 rounded-xl">
-              <div class="p-3 rounded-xl bg-black"></div>
-            </div> -->
-          </div>
+        <div :id="'top-player' + (indexXaxis+1)+'-'+(indexYaxis+1)"></div>
+        <div 
+          v-if="ballPosition === (indexXaxis+1)+'-'+(indexYaxis+1)" 
+          :id="'ball'+(indexXaxis+1)+'-'+(indexYaxis+1)"
+          class="w-8 h-8 bg-white rounded-3xl"
+          @click="toggleHighLightAdjacent([(indexXaxis+1), (indexYaxis+1)], 2)"
+          draggable="true"
+        ></div>
+        <div :id="'bottom-player' + (indexXaxis+1)+'-'+(indexYaxis+1)"></div>
           <!-- <div class="text-red-500">hello</div>
           <button @click="test" v-if="showButton" class="px-2 bg-black rounded">press</button> -->
       </div>
