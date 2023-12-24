@@ -4,6 +4,7 @@
   const rows = ref(10)
   const cols = ref(5)
   const ballPosition = ref('3-7');
+  const dragTarget = ref();
 
   const players = [
     {
@@ -31,7 +32,7 @@
       name: 'playerFour',
       hairColour: 'bg-orange-900',
       shirtColour: 'bg-red-500',
-      position: '3-7',
+      position: '3-6',
       direction: 'bottom',
     },
     {
@@ -52,7 +53,6 @@
 
   const placePlayers = () => {
     players.forEach(player => {
-      console.log(player)
       let playerBodyDiv = document.getElementById(player.name)
 
       if (!playerBodyDiv) {
@@ -61,6 +61,7 @@
         playerBodyDiv.id = player.name
         playerBodyDiv.appendChild(playerHeadDiv)
         playerBodyDiv.setAttribute('class', 'px-4 rounded-xl ' + player.shirtColour)
+        playerBodyDiv.setAttribute('draggable', true)
         playerHeadDiv.setAttribute('class', 'p-3 rounded-xl ' + player.hairColour)
       }
       
@@ -147,19 +148,35 @@
     // }
     // }
 
-  
-  function dragstartHandler(ev) {
-    // Add the target element's id to the data transfer object
-    // const startPosition = ev.target.id;
-    // console.log(startPosition)
-  }
 
   function dropHandler(location) {
-    ballPosition.value = location;
+    if (dragTarget.value === 'ball') {
+      ballPosition.value = location;
+    } else {
+      players.forEach(player => {
+      if (player.name === dragTarget.value) {
+        if (player.position === ballPosition.value) {
+          ballPosition.value = location
+        }
+
+        player.position = location
+      
+        placePlayers()
+      }
+    })  
+  }
   }
   onMounted(() => {
     placePlayers();
-  })
+
+    const draggableElements = document.querySelectorAll('[draggable="true"]');
+
+    draggableElements.forEach(draggableElement => {
+      draggableElement.addEventListener("dragstart", (event) =>
+      dragTarget.value = event.target.id
+    )}
+  )
+})
 
 </script>
 
@@ -176,15 +193,17 @@
         :class="isHighlighted([(indexXaxis+1), (indexYaxis+1)]) ? ' bg-blue-600' : ((indexXaxis+1) + (indexYaxis+1)) % 2 === 0 ? 'bg-green-700' : 'bg-green-900'"
         class="border border-black w-20 h-20 pl-1 flex flex-col justify-center items-center relative"  
         :id="(indexXaxis+1)+'-'+(indexYaxis+1)"
-        @drop="isHighlighted([(indexXaxis+1), (indexYaxis+1)]) ? dropHandler((indexXaxis+1)+'-'+(indexYaxis+1)) : ''"
+        @drop="dropHandler((indexXaxis+1)+'-'+(indexYaxis+1))"
         @dragenter.prevent
         @dragover.prevent
       >
-        <div class="absolute top-0 left-1">{{indexXaxis+1}}-{{indexYaxis+1}}</div>
+      <!-- @drop="isHighlighted([(indexXaxis+1), (indexYaxis+1)]) ? dropHandler((indexXaxis+1)+'-'+(indexYaxis+1)) : ''" -->
+
+      <div class="absolute top-0 left-1">{{indexXaxis+1}}-{{indexYaxis+1}}</div>
         <div :id="'top-player' + (indexXaxis+1)+'-'+(indexYaxis+1)"></div>
         <div 
           v-if="ballPosition === (indexXaxis+1)+'-'+(indexYaxis+1)" 
-          :id="'ball'+(indexXaxis+1)+'-'+(indexYaxis+1)"
+          id="ball"
           class="w-8 h-8 bg-white rounded-3xl"
           @mousedown="highLightAdjacent([(indexXaxis+1), (indexYaxis+1)], 2)"
           draggable="true"
