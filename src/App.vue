@@ -52,6 +52,18 @@
   ]
 
   const placePlayers = () => {
+    let ballDiv = document.getElementById('ball')
+
+    if (!ballDiv) {
+      ballDiv = document.createElement('div')
+      ballDiv.id = 'ball'
+      ballDiv.setAttribute('class', 'w-8 h-8 bg-white rounded-3xl')
+      ballDiv.setAttribute('draggable', true)
+    }
+
+    const ballLocationDiv = document.getElementById('ball-slot' + ballPosition.value)
+    ballLocationDiv.appendChild(ballDiv)
+
     players.forEach(player => {
       let playerBodyDiv = document.getElementById(player.name)
 
@@ -64,12 +76,16 @@
         playerBodyDiv.setAttribute('draggable', true)
         playerHeadDiv.setAttribute('class', 'p-3 rounded-xl ' + player.hairColour)
       }
-      
+
+      // if (player.position === ballPosition.value) {
+      //   ballDiv.setAttribute('draggable', true)
+      // }
+
       const playerLocation = document.getElementById(player.direction + '-player' + player.position)
       playerLocation.appendChild(playerBodyDiv)
     })
-  }
 
+  }
 
   const range = (start, end) => {
     var ans = [];
@@ -150,6 +166,7 @@
 
 
   function dropHandler(location) {
+    console.log(dragTarget.value)
     if (dragTarget.value === 'ball') {
       ballPosition.value = location;
     } else {
@@ -160,12 +177,13 @@
         }
 
         player.position = location
-      
-        placePlayers()
-      }
-    })  
+        }
+      })
+    }
+    
+    placePlayers()
   }
-  }
+
   onMounted(() => {
     placePlayers();
 
@@ -201,13 +219,9 @@
 
       <div class="absolute top-0 left-1">{{indexXaxis+1}}-{{indexYaxis+1}}</div>
         <div :id="'top-player' + (indexXaxis+1)+'-'+(indexYaxis+1)"></div>
-        <div 
-          v-if="ballPosition === (indexXaxis+1)+'-'+(indexYaxis+1)" 
-          id="ball"
-          class="w-8 h-8 bg-white rounded-3xl"
-          @mousedown="highLightAdjacent([(indexXaxis+1), (indexYaxis+1)], 2)"
-          draggable="true"
-        ></div>
+        <div :id="'ball-slot' + (indexXaxis+1)+'-'+(indexYaxis+1)"></div>
+          <!-- @mousedown="highLightAdjacent([(indexXaxis+1), (indexYaxis+1)], 2)" -->
+
         <div :id="'bottom-player' + (indexXaxis+1)+'-'+(indexYaxis+1)"></div>
           <!-- <div class="text-red-500">hello</div>
           <button @click="test" v-if="showButton" class="px-2 bg-black rounded">press</button> -->
