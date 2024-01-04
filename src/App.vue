@@ -146,25 +146,22 @@
   }
 
   function dropHandler(location) {
-    if (dragTarget.value === 'ball') {
-      // only allow the ball to move if a player is on the same square
-      players.forEach(player => {
-        if (player.position === ballPosition.value) {
-          ballPosition.value = location;
-        }
-      })
-    } else {
-      players.forEach(player => {
+    players.forEach(player => {
+      // Only allow the ball to move if a player is on the same square
+      if (player.position === ballPosition.value && dragTarget.value === 'ball') {
+        ballPosition.value = location;
+      }
+      
       if (player.name === dragTarget.value) {
+        // Move the ball with the player if they start with it
         if (player.position === ballPosition.value) {
           ballPosition.value = location
         }
 
         player.position = location
-        }
-      })
-    }
-    
+      }
+    })
+
     placePlayers()
   }
 
