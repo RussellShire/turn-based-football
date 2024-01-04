@@ -13,6 +13,7 @@
       shirtColour: 'bg-red-500',
       position: '2-5',
       direction: 'bottom',
+      movement: 2,
     },
     {
       name: 'playerTwo',
@@ -20,6 +21,7 @@
       shirtColour: 'bg-blue-400',
       position: '4-5',
       direction: 'top',
+      movement: 2,
     },
     {
       name: 'playerThree',
@@ -27,6 +29,7 @@
       shirtColour: 'bg-blue-400',
       position: '2-7',
       direction: 'top',
+      movement: 2,
     },
     {
       name: 'playerFour',
@@ -34,6 +37,7 @@
       shirtColour: 'bg-red-500',
       position: '3-6',
       direction: 'bottom',
+      movement: 2,
     },
     {
       name: 'playerFive',
@@ -41,6 +45,7 @@
       shirtColour: 'bg-blue-400',
       position: '4-9',
       direction: 'bottom',
+      movement: 2,
     },
     {
       name: 'playerSix',
@@ -48,6 +53,7 @@
       shirtColour: 'bg-red-500',
       position: '4-3',
       direction: 'bottom',
+      movement: 2,
     },
   ]
 
@@ -80,14 +86,7 @@
 
       const playerLocation = document.getElementById(player.direction + '-player' + player.position)
       playerLocation.appendChild(playerBodyDiv)
-
-      // if (player.position === ballPosition.value) {
-      //   ballDiv.setAttribute('draggable', true)
-      // } else {
-      //   ballDiv.setAttribute('draggable', false)
-      // }
     })
-
   }
 
   const range = (start, end) => {
@@ -126,11 +125,32 @@
     return adjacentArray;
   }
 
+  const isValidMove = (startLocation, endLocation, allowedDistance) => {
+    if (typeof startLocation === 'string') {
+      startLocation = startLocation.split('-').map(string => Number(string))
+    }
+
+    if (typeof endLocation === 'string') {
+      endLocation = endLocation.split('-').map(string => Number(string))
+    }
+
+    const validMoves = findAdjacent(startLocation, allowedDistance)
+
+    let isValid = false;
+
+    validMoves.forEach(validMove => {
+      if (validMove[0] === endLocation[0] && validMove[1] === endLocation[1] ) {
+        isValid = true;
+      }
+    })
+
+    return isValid;
+  }
+
   const currentlyHighlighted = ref([]);
 
   const highLightAdjacent = (box, distance) => { 
     currentlyHighlighted.value = findAdjacent(box, distance);
-
   }
 
   const isHighlighted = (box) => {
@@ -148,11 +168,11 @@
   function dropHandler(location) {
     players.forEach(player => {
       // Only allow the ball to move if a player is on the same square
-      if (player.position === ballPosition.value && dragTarget.value === 'ball') {
+      if (dragTarget.value === 'ball' && player.position === ballPosition.value && isValidMove(ballPosition.value, location, 2)) {
         ballPosition.value = location;
       }
-      
-      if (player.name === dragTarget.value) {
+
+      if (player.name === dragTarget.value && isValidMove(player.position, location, player.movement)) {
         // Move the ball with the player if they start with it
         if (player.position === ballPosition.value) {
           ballPosition.value = location
