@@ -1,7 +1,7 @@
 <script setup>
   import { onMounted, ref } from 'vue';
 
-  const rows = ref(10)
+  const rows = ref(9)
   const cols = ref(5)
   const ballPosition = ref('3-7');
   const dragTarget = ref();
@@ -37,10 +37,10 @@
     },
     {
       name: 'playerFive',
-      hairColour: 'bg-black',
+      hairColour: 'bg-yellow-900',
       shirtColour: 'bg-blue-400',
-      position: '4-8',
-      direction: 'top',
+      position: '4-9',
+      direction: 'bottom',
     },
     {
       name: 'playerSix',
@@ -64,6 +64,7 @@
     const ballLocationDiv = document.getElementById('ball-slot' + ballPosition.value)
     ballLocationDiv.appendChild(ballDiv)
 
+
     players.forEach(player => {
       let playerBodyDiv = document.getElementById(player.name)
 
@@ -77,12 +78,14 @@
         playerHeadDiv.setAttribute('class', 'p-3 rounded-xl ' + player.hairColour)
       }
 
-      // if (player.position === ballPosition.value) {
-      //   ballDiv.setAttribute('draggable', true)
-      // }
-
       const playerLocation = document.getElementById(player.direction + '-player' + player.position)
       playerLocation.appendChild(playerBodyDiv)
+
+      // if (player.position === ballPosition.value) {
+      //   ballDiv.setAttribute('draggable', true)
+      // } else {
+      //   ballDiv.setAttribute('draggable', false)
+      // }
     })
 
   }
@@ -142,33 +145,14 @@
     return match;
   }
 
-  // FYNN's first code
-  // const pressCount = ref(0)
-  // const showButton = ref(true)
-
-  // const test = () => {
-  //   pressCount.value = pressCount.value + 1
-
-    // if (pressCount.value < 5) {
-    //   console.log("Ouch! Hey don't press me!-I might say press but still it REALLY HURTS")
-    // } else if (pressCount.value < 15 ) {
-    //   console.log("You really don't quit!")
-    // } else if (pressCount.value < 30 ) {
-    //   console.log("for the millionth time, STOP IT!!!!")
-    // } else if (pressCount.value < 100 ) {
-    //   console.log("Im in hospital now!") 
-    // }else if (pressCount.value < 101 )  {
-    //   console.log("WILL YOU STOP DESTROYING ME!!!")
-    //   console.log("That's it, I'm off!")
-    //   showButton.value = false
-    // }
-    // }
-
-
   function dropHandler(location) {
-    console.log(dragTarget.value)
     if (dragTarget.value === 'ball') {
-      ballPosition.value = location;
+      // only allow the ball to move if a player is on the same square
+      players.forEach(player => {
+        if (player.position === ballPosition.value) {
+          ballPosition.value = location;
+        }
+      })
     } else {
       players.forEach(player => {
       if (player.name === dragTarget.value) {
@@ -233,3 +217,25 @@
 <style scoped>
 /*  */
 </style>
+
+<!-- // FYNN's first code
+// const pressCount = ref(0)
+// const showButton = ref(true)
+
+// const test = () => {
+//   pressCount.value = pressCount.value + 1
+
+  // if (pressCount.value < 5) {
+  //   console.log("Ouch! Hey don't press me!-I might say press but still it REALLY HURTS")
+  // } else if (pressCount.value < 15 ) {
+  //   console.log("You really don't quit!")
+  // } else if (pressCount.value < 30 ) {
+  //   console.log("for the millionth time, STOP IT!!!!")
+  // } else if (pressCount.value < 100 ) {
+  //   console.log("Im in hospital now!") 
+  // }else if (pressCount.value < 101 )  {
+  //   console.log("WILL YOU STOP DESTROYING ME!!!")
+  //   console.log("That's it, I'm off!")
+  //   showButton.value = false
+  // }
+  // } -->
