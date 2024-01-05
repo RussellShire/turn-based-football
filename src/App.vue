@@ -1,61 +1,12 @@
 <script setup>
   import { onMounted, ref } from 'vue';
+  import {players} from '../src/js/Data'
+  import {isValidMove} from '../src/js/Helpers'
 
   const rows = ref(9)
-  const cols = ref(5)
+  const cols = ref(6)
   const ballPosition = ref('3-7');
   const dragTarget = ref();
-
-  const players = [
-    {
-      name: 'playerOne',
-      hairColour: 'bg-black',
-      shirtColour: 'bg-red-500',
-      position: '2-5',
-      direction: 'bottom',
-      movement: 2,
-    },
-    {
-      name: 'playerTwo',
-      hairColour: 'bg-yellow-500',
-      shirtColour: 'bg-blue-400',
-      position: '4-5',
-      direction: 'top',
-      movement: 2,
-    },
-    {
-      name: 'playerThree',
-      hairColour: 'bg-red-300',
-      shirtColour: 'bg-blue-400',
-      position: '2-7',
-      direction: 'top',
-      movement: 2,
-    },
-    {
-      name: 'playerFour',
-      hairColour: 'bg-orange-900',
-      shirtColour: 'bg-red-500',
-      position: '3-6',
-      direction: 'bottom',
-      movement: 2,
-    },
-    {
-      name: 'playerFive',
-      hairColour: 'bg-yellow-900',
-      shirtColour: 'bg-blue-400',
-      position: '4-9',
-      direction: 'bottom',
-      movement: 2,
-    },
-    {
-      name: 'playerSix',
-      hairColour: 'bg-yellow-800',
-      shirtColour: 'bg-red-500',
-      position: '4-3',
-      direction: 'bottom',
-      movement: 2,
-    },
-  ]
 
   const placePlayers = () => {
     let ballDiv = document.getElementById('ball')
@@ -69,7 +20,6 @@
 
     const ballLocationDiv = document.getElementById('ball-slot' + ballPosition.value)
     ballLocationDiv.appendChild(ballDiv)
-
 
     players.forEach(player => {
       let playerBodyDiv = document.getElementById(player.name)
@@ -89,90 +39,14 @@
     })
   }
 
-  const range = (start, end) => {
-    var ans = [];
-    for (let i = start; i <= end; i++) {
-        ans.push(i);
-    }
-    return ans;
-  }
-
-  const findAdjacent = (startLocation, distance) => {
-    const distanceRange = range(distance *-1, distance).filter(num => num != 0);
-
-    const adjacentArray = [startLocation];
-
-    // Change X axis of startLocation by each element in Range and add to adjacentArray
-    distanceRange.map(modifier => {
-      const newXaxis = startLocation[0] + modifier;
-
-      if (newXaxis > 0 && newXaxis <= cols.value) { // check result is in bounds of the grid
-        adjacentArray.push([newXaxis, startLocation[1]])
-      }
-    })
-
-    // Take each elem in adjecentArray and modify by each elem in Range and add to adjacentArray 
-    adjacentArray.map(adjacentBox => {
-      distanceRange.map(modifier => {
-        const newYaxis = adjacentBox[1] + modifier;
-
-        if (newYaxis > 0 && newYaxis <= rows.value) {
-          adjacentArray.push([adjacentBox[0], newYaxis])
-        }
-      })
-    })
-
-    return adjacentArray;
-  }
-
-  const isValidMove = (startLocation, endLocation, allowedDistance) => {
-    if (typeof startLocation === 'string') {
-      startLocation = startLocation.split('-').map(string => Number(string))
-    }
-
-    if (typeof endLocation === 'string') {
-      endLocation = endLocation.split('-').map(string => Number(string))
-    }
-
-    const validMoves = findAdjacent(startLocation, allowedDistance)
-
-    let isValid = false;
-
-    validMoves.forEach(validMove => {
-      if (validMove[0] === endLocation[0] && validMove[1] === endLocation[1] ) {
-        isValid = true;
-      }
-    })
-
-    return isValid;
-  }
-
-  const currentlyHighlighted = ref([]);
-
-  const highLightAdjacent = (box, distance) => { 
-    currentlyHighlighted.value = findAdjacent(box, distance);
-  }
-
-  const isHighlighted = (box) => {
-    let match = false;
-
-    currentlyHighlighted.value.map(highlighted => {
-      if (highlighted[0] === box[0] && highlighted[1] === box[1]){
-        match = true
-      }
-
-    })
-    return match;
-  }
-
   function dropHandler(location) {
     players.forEach(player => {
       // Only allow the ball to move if a player is on the same square
-      if (dragTarget.value === 'ball' && player.position === ballPosition.value && isValidMove(ballPosition.value, location, 2)) {
+      if (dragTarget.value === 'ball' && player.position === ballPosition.value && isValidMove(ballPosition.value, location, 2, cols.value, rows.value)) {
         ballPosition.value = location;
       }
 
-      if (player.name === dragTarget.value && isValidMove(player.position, location, player.movement)) {
+      if (player.name === dragTarget.value && isValidMove(player.position, location, player.movement, cols.value, rows.value)) {
         // Move the ball with the player if they start with it
         if (player.position === ballPosition.value) {
           ballPosition.value = location
@@ -206,10 +80,11 @@
       :key="indexYaxis"
       class="flex flex-row justify-center" 
     >
+    <!-- :class="isHighlighted([(indexXaxis+1), (indexYaxis+1)]) ? ' bg-blue-600' : ((indexXaxis+1) + (indexYaxis+1)) % 2 === 0 ? 'bg-green-700' : 'bg-green-900'" -->
       <div 
         v-for="(box, indexXaxis) in cols"
         :key="indexXaxis"
-        :class="isHighlighted([(indexXaxis+1), (indexYaxis+1)]) ? ' bg-blue-600' : ((indexXaxis+1) + (indexYaxis+1)) % 2 === 0 ? 'bg-green-700' : 'bg-green-900'"
+        :class="((indexXaxis+1) + (indexYaxis+1)) % 2 === 0 ? 'bg-green-700' : 'bg-green-900'"
         class="border border-black w-20 h-20 pl-1 flex flex-col justify-center items-center relative"  
         :id="(indexXaxis+1)+'-'+(indexYaxis+1)"
         @drop="dropHandler((indexXaxis+1)+'-'+(indexYaxis+1))"
