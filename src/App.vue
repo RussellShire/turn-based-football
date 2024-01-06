@@ -1,13 +1,15 @@
 <script setup>
   import { onMounted, ref } from 'vue';
   import {players} from '../src/js/Data'
-  import {isValidMove, findNextMove} from '../src/js/Helpers'
+  import {isValidMove, nextMoveArray} from '../src/js/Helpers'
 
   const rows = ref(9)
   const cols = ref(6)
   const ballPosition = ref('3-7');
   const dragTarget = ref();
-  console.log(findNextMove([3,4], [5,4]))
+
+  console.log(nextMoveArray([1,9], [6,7]))
+
   const placePlayers = () => {
     let ballDiv = document.getElementById('ball')
 

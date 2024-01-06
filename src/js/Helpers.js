@@ -65,22 +65,28 @@ const range = (start, end) => {
     return isValid;
   }
 
-  export const findNextMove = (start, end) => {
-    let returnString = false;
+  export const nextMoveArray = (start, end) => {
+    const nextMoveArray = [];
+
+    // let returnString = false;
 
     if (typeof start === 'string') {
       start = stringCoordToArray(start)
-      returnString = true;
+      // returnString = true;
     }
 
     if (typeof end === 'string') {
       end = stringCoordToArray(end)
     }
 
-    return {
-      nextMove: [progressCoordinate(start[0], end[0]), progressCoordinate(start[1], end[1])],
-      returnString: returnString,
+    let nextMove = start;
+
+    while (nextMove[0] != end[0] || nextMove[1] != end[1]) {
+      nextMove = [progressCoordinate(nextMove[0], end[0]), progressCoordinate(nextMove[1], end[1])];
+      nextMoveArray.push(nextMove);
     }
+    
+    return nextMoveArray;
   }
 
   const progressCoordinate = (start, end) => {
