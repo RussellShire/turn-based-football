@@ -6,6 +6,15 @@ const range = (start, end) => {
     return ans;
   }
 
+  const stringCoordToArray = (string) => {
+    if (typeof string === 'string') {
+      string = string.split('-').map(item => Number(item))
+      return string
+    } else {
+      console.log("please pass sting to stringCoordToArray")
+    }
+  }
+
   const findAdjacent = (startLocation, distance, cols, rows) => {
     const distanceRange = range(distance *-1, distance).filter(num => num != 0);
 
@@ -36,11 +45,11 @@ const range = (start, end) => {
 
   export const isValidMove = (startLocation, endLocation, allowedDistance, cols, rows) => {
     if (typeof startLocation === 'string') {
-      startLocation = startLocation.split('-').map(string => Number(string))
+      startLocation = stringCoordToArray(startLocation)
     }
 
     if (typeof endLocation === 'string') {
-      endLocation = endLocation.split('-').map(string => Number(string))
+      endLocation = stringCoordToArray(endLocation)
     }
 
     const validMoves = findAdjacent(startLocation, allowedDistance, cols, rows)
@@ -55,6 +64,35 @@ const range = (start, end) => {
 
     return isValid;
   }
+
+  export const findNextMove = (start, end) => {
+    let returnString = false;
+
+    if (typeof start === 'string') {
+      start = stringCoordToArray(start)
+      returnString = true;
+    }
+
+    if (typeof end === 'string') {
+      end = stringCoordToArray(end)
+    }
+
+    return {
+      nextMove: [progressCoordinate(start[0], end[0]), progressCoordinate(start[1], end[1])],
+      returnString: returnString,
+    }
+  }
+
+  const progressCoordinate = (start, end) => {
+    if (start > end) {
+      return start -1
+    } else if (start < end) {
+      return start +1
+    }
+
+    return start
+  }
+
 
 //   const currentlyHighlighted = ref([]);
 
