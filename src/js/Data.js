@@ -6,6 +6,7 @@ export const players = [
       position: '2-5',
       direction: 'bottom',
       movement: 2,
+      hasMoved: false,
     },
     {
       name: 'playerTwo',
@@ -14,6 +15,7 @@ export const players = [
       position: '4-5',
       direction: 'top',
       movement: 2,
+      hasMoved: false,
     },
     {
       name: 'playerThree',
@@ -22,6 +24,7 @@ export const players = [
       position: '2-7',
       direction: 'top',
       movement: 2,
+      hasMoved: false,
     },
     {
       name: 'playerFour',
@@ -30,6 +33,7 @@ export const players = [
       position: '3-6',
       direction: 'bottom',
       movement: 2,
+      hasMoved: false,
     },
     {
       name: 'playerFive',
@@ -38,6 +42,7 @@ export const players = [
       position: '4-9',
       direction: 'bottom',
       movement: 2,
+      hasMoved: false,
     },
     {
       name: 'playerSix',
@@ -46,5 +51,6 @@ export const players = [
       position: '4-3',
       direction: 'bottom',
       movement: 2,
+      hasMoved: false,
     },
   ]

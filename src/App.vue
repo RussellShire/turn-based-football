@@ -5,10 +5,12 @@
 
   const rows = ref(9)
   const cols = ref(6)
-  const ballPosition = ref('3-7');
+  const ballPosition = ref('3-6');
   const dragTarget = ref();
 
-  console.log(nextMoveArray([1,9], [6,7]))
+  // console.log(nextMoveArray([1,9], [6,7]))
+
+  const moves = ref([])
 
   const placePlayers = () => {
     let ballDiv = document.getElementById('ball')
@@ -41,25 +43,120 @@
     })
   }
 
+  const placeMoveMarkers = () => {
+    moves.value.forEach(move => {
+      if (move.target === 'ball') {
+        // Handle ball
+        let ballMoveMarkerDiv = document.getElementById('ball-move-marker')
+
+        if (!ballMoveMarkerDiv) {
+          ballMoveMarkerDiv = document.createElement('div')
+          ballMoveMarkerDiv.id = 'ball-move-marker'
+          ballMoveMarkerDiv.setAttribute('class', 'w-8 h-8 bg-white rounded-3xl opacity-50')
+          // ballDiv.setAttribute('draggable', false)
+        }
+
+        const ballLocationDiv = document.getElementById('ball-slot' + move.destination)
+        ballLocationDiv.appendChild(ballMoveMarkerDiv)
+      } else {
+        // handle players
+        const player = players.filter(player => player.name === move.target)[0];
+
+        let playerBodyMarkerDiv = document.getElementById(player.name + '-move-marker')
+
+        if (!playerBodyMarkerDiv) {
+          playerBodyMarkerDiv = document.createElement('div')
+          const playerHeadMarkerDiv = document.createElement('div')
+          playerBodyMarkerDiv.id = player.name + '-move-marker'
+          playerBodyMarkerDiv.appendChild(playerHeadMarkerDiv)
+          playerBodyMarkerDiv.setAttribute('class', 'px-4 rounded-xl opacity-50 ' + player.shirtColour)
+          playerBodyMarkerDiv.setAttribute('draggable', true)
+          playerHeadMarkerDiv.setAttribute('class', 'p-3 rounded-xl opacity-50 ' + player.hairColour)
+        }
+
+        const playerLocation = document.getElementById(player.direction + '-player' + move.destination)
+        playerLocation.appendChild(playerBodyMarkerDiv)
+      }
+    })
+
+    // players.forEach(player => {
+    //   let playerBodyDiv = document.getElementById(player.name)
+
+    //   if (!playerBodyDiv) {
+    //     playerBodyDiv = document.createElement('div')
+    //     const playerHeadDiv = document.createElement('div')
+    //     playerBodyDiv.id = player.name
+    //     playerBodyDiv.appendChild(playerHeadDiv)
+    //     playerBodyDiv.setAttribute('class', 'px-4 rounded-xl ' + player.shirtColour)
+    //     playerBodyDiv.setAttribute('draggable', true)
+    //     playerHeadDiv.setAttribute('class', 'p-3 rounded-xl ' + player.hairColour)
+    //   }
+
+    //   const playerLocation = document.getElementById(player.direction + '-player' + player.position)
+    //   playerLocation.appendChild(playerBodyDiv)
+    // })
+  }
+
+  // Store moves dropHandler
   function dropHandler(location) {
     players.forEach(player => {
       // Only allow the ball to move if a player is on the same square
       if (dragTarget.value === 'ball' && player.position === ballPosition.value && isValidMove(ballPosition.value, location, 2, cols.value, rows.value)) {
-        ballPosition.value = location;
+        // ballPosition.value = location;
+        moves.value.push({
+          target: 'ball',
+          start: ballPosition,
+          destination: location,
+        })
       }
 
-      if (player.name === dragTarget.value && isValidMove(player.position, location, player.movement, cols.value, rows.value)) {
+      if (player.name === dragTarget.value && !player.hasMoved && isValidMove(player.position, location, player.movement, cols.value, rows.value)) {
         // Move the ball with the player if they start with it
         if (player.position === ballPosition.value) {
-          ballPosition.value = location
+          moves.value.push({
+            target: 'ball',
+            start: player.position,
+            destination: location,
+          })
         }
 
-        player.position = location
+        moves.value.push({
+          target: player.name,
+          start: player.position,
+          destination: location,
+        })
+        player.hasMoved = true;
       }
     })
 
-    placePlayers()
+    console.log(moves.value);
+
+    placeMoveMarkers()
+    
+    // placePlayers()
   }
+
+
+  // // Instant Move dropHandler
+  // function dropHandler(location) {
+  //   players.forEach(player => {
+  //     // Only allow the ball to move if a player is on the same square
+  //     if (dragTarget.value === 'ball' && player.position === ballPosition.value && isValidMove(ballPosition.value, location, 2, cols.value, rows.value)) {
+  //       ballPosition.value = location;
+  //     }
+
+  //     if (player.name === dragTarget.value && isValidMove(player.position, location, player.movement, cols.value, rows.value)) {
+  //       // Move the ball with the player if they start with it
+  //       if (player.position === ballPosition.value) {
+  //         ballPosition.value = location
+  //       }
+
+  //       player.position = location
+  //     }
+  //   })
+
+  //   placePlayers()
+  // }
 
   onMounted(() => {
     placePlayers();
