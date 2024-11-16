@@ -8,9 +8,40 @@
   const ballPosition = ref('3-6');
   const dragTarget = ref();
 
-  // console.log(nextMoveArray([1,9], [6,7]))
-
   const moves = ref([])
+
+  const makeMoves = () => {
+    // console.log('moves:', moves.value);
+
+    moves.value.forEach(move => {
+      if(move.target !== 'ball') {
+        const player = getPlayerFromMove(move);
+
+        const nextMoveAsArray = nextMoveArray(move.start, move.destination)[0];
+        const nextMoveString = nextMoveAsArray[0] + '-' + nextMoveAsArray[1]
+        console.log(nextMoveString)
+
+        player.position = nextMoveString
+        move.start = nextMoveString;
+
+        if (move.start === move.destination) {
+          // Remove move from moves array
+          moves.value = moves.value.filter(item => item !== move)
+
+          // Remove move marker from screen
+          let playerBodyMarkerDiv = document.getElementById(player.name + '-move-marker')
+          playerBodyMarkerDiv.remove()
+
+          // Set player ready to move again
+          player.hasMoved = false;
+        }
+      } else {
+        // TODO add logic for moving the ball
+      }
+    })
+
+    placePlayers()
+  }
 
   const placePlayers = () => {
     let ballDiv = document.getElementById('ball')
@@ -43,10 +74,14 @@
     })
   }
 
+  const getPlayerFromMove = (move) => {
+    return players.filter(player => player.name === move.target)[0]
+  }
+
   const placeMoveMarkers = () => {
     moves.value.forEach(move => {
+      // Handle ball
       if (move.target === 'ball') {
-        // Handle ball
         let ballMoveMarkerDiv = document.getElementById('ball-move-marker')
 
         if (!ballMoveMarkerDiv) {
@@ -58,9 +93,8 @@
 
         const ballLocationDiv = document.getElementById('ball-slot' + move.destination)
         ballLocationDiv.appendChild(ballMoveMarkerDiv)
-      } else {
-        // handle players
-        const player = players.filter(player => player.name === move.target)[0];
+      } else { // Handle Players
+        const player = getPlayerFromMove(move);
 
         let playerBodyMarkerDiv = document.getElementById(player.name + '-move-marker')
 
@@ -78,23 +112,6 @@
         playerLocation.appendChild(playerBodyMarkerDiv)
       }
     })
-
-    // players.forEach(player => {
-    //   let playerBodyDiv = document.getElementById(player.name)
-
-    //   if (!playerBodyDiv) {
-    //     playerBodyDiv = document.createElement('div')
-    //     const playerHeadDiv = document.createElement('div')
-    //     playerBodyDiv.id = player.name
-    //     playerBodyDiv.appendChild(playerHeadDiv)
-    //     playerBodyDiv.setAttribute('class', 'px-4 rounded-xl ' + player.shirtColour)
-    //     playerBodyDiv.setAttribute('draggable', true)
-    //     playerHeadDiv.setAttribute('class', 'p-3 rounded-xl ' + player.hairColour)
-    //   }
-
-    //   const playerLocation = document.getElementById(player.direction + '-player' + player.position)
-    //   playerLocation.appendChild(playerBodyDiv)
-    // })
   }
 
   // Store moves dropHandler
@@ -102,7 +119,6 @@
     players.forEach(player => {
       // Only allow the ball to move if a player is on the same square
       if (dragTarget.value === 'ball' && player.position === ballPosition.value && isValidMove(ballPosition.value, location, 2, cols.value, rows.value)) {
-        // ballPosition.value = location;
         moves.value.push({
           target: 'ball',
           start: ballPosition,
@@ -115,7 +131,7 @@
         if (player.position === ballPosition.value) {
           moves.value.push({
             target: 'ball',
-            start: player.position,
+            start: ballPosition,
             destination: location,
           })
         }
@@ -125,19 +141,16 @@
           start: player.position,
           destination: location,
         })
+
         player.hasMoved = true;
       }
     })
 
-    console.log(moves.value);
-
     placeMoveMarkers()
-    
-    // placePlayers()
   }
 
 
-  // // Instant Move dropHandler
+  // // Instant Move dropHandler (depreciated by kept for testing)
   // function dropHandler(location) {
   //   players.forEach(player => {
   //     // Only allow the ball to move if a player is on the same square
@@ -173,6 +186,15 @@
 </script>
 
 <template>
+  <div class="flex justify-center w-full">
+    <button 
+      @click="makeMoves"
+      class="p-3 bg-white w-fit text-green-500 rounded m-2"
+    >
+      Make Moves
+    </button>
+  </div>
+
   <div class="flex flex-col-reverse w-auto border-2">
     <div 
       v-for="(row, indexYaxis) in rows"
@@ -192,14 +214,13 @@
       >
       <!-- @drop="isHighlighted([(indexXaxis+1), (indexYaxis+1)]) ? dropHandler((indexXaxis+1)+'-'+(indexYaxis+1)) : ''" -->
 
-      <div class="absolute top-0 left-1">{{indexXaxis+1}}-{{indexYaxis+1}}</div>
+      <div class="absolute top-0 left-1">{{indexXaxis+1}}-{{indexYaxis+1}}</div> <!-- numbers -->
         <div :id="'top-player' + (indexXaxis+1)+'-'+(indexYaxis+1)"></div>
         <div :id="'ball-slot' + (indexXaxis+1)+'-'+(indexYaxis+1)"></div>
           <!-- @mousedown="highLightAdjacent([(indexXaxis+1), (indexYaxis+1)], 2)" -->
 
         <div :id="'bottom-player' + (indexXaxis+1)+'-'+(indexYaxis+1)"></div>
-          <!-- <div class="text-red-500">hello</div>
-          <button @click="test" v-if="showButton" class="px-2 bg-black rounded">press</button> -->
+          <!-- <button @click="test" v-if="showButton" class="px-2 bg-black rounded">press</button> -->
       </div>
     </div>
   </div>
