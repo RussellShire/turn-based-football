@@ -1,46 +1,58 @@
 <script setup>
-  import { onMounted, ref } from 'vue';
+  import { onMounted, ref } from 'vue'
   import {players} from '../src/js/Data'
-  import {isValidMove, nextMoveArray} from '../src/js/Helpers'
+  import {isValidMove, nextMoveArray, getPlayerFromMove} from '../src/js/Helpers'
 
   const rows = ref(9)
   const cols = ref(6)
-  const ballPosition = ref('3-6');
-  const dragTarget = ref();
+  const ballPosition = ref('3-6')
+  const ballMoveMarkerPosition = ref()
+  const dragTarget = ref()
 
   const moves = ref([])
+  const secondaryMove = ref([]) // Bit messy this, hacked in to get it working
 
   const makeMoves = () => {
-    // console.log('moves:', moves.value);
-
     moves.value.forEach(move => {
-      if(move.target !== 'ball') {
-        const player = getPlayerFromMove(move);
+      const nextMoveAsArray = nextMoveArray(move.start, move.destination)[0]
+      const nextMoveString = nextMoveAsArray[0] + '-' + nextMoveAsArray[1]
+      move.start = nextMoveString
+      let player = null
 
-        const nextMoveAsArray = nextMoveArray(move.start, move.destination)[0];
-        const nextMoveString = nextMoveAsArray[0] + '-' + nextMoveAsArray[1]
-        console.log(nextMoveString)
+      if(move.target === 'ball') {
+        ballPosition.value = nextMoveString
+      } else if (move.target === 'ball-move-marker') {
+        ballMoveMarkerPosition.value = nextMoveString
+      } else {
+        player = getPlayerFromMove(players, move)       
 
         player.position = nextMoveString
-        move.start = nextMoveString;
+      }
 
-        if (move.start === move.destination) {
+      if (move.start === move.destination) {
           // Remove move from moves array
           moves.value = moves.value.filter(item => item !== move)
 
           // Remove move marker from screen
-          let playerBodyMarkerDiv = document.getElementById(player.name + '-move-marker')
-          playerBodyMarkerDiv.remove()
+          let divToRemove = document.getElementById(player ? player.name + '-move-marker' : 'ball-move-marker')
+          if (divToRemove) {
+            divToRemove.remove()
+          }
+      }
 
-          // Set player ready to move again
-          player.hasMoved = false;
-        }
-      } else {
-        // TODO add logic for moving the ball
+      if (player) {
+        // Set player ready to move again
+        player.hasMoved = false
       }
     })
 
     placePlayers()
+
+    // Add in kicking the ball after moving
+    if (!moves.value.length && secondaryMove.value.length) {
+      moves.value.push(...secondaryMove.value)
+      console.log('pushed', moves.value)
+    }
   }
 
   const placePlayers = () => {
@@ -74,16 +86,14 @@
     })
   }
 
-  const getPlayerFromMove = (move) => {
-    return players.filter(player => player.name === move.target)[0]
-  }
-
-  const placeMoveMarkers = () => {
+  
+  const placeMoveMarkers = (moves) => {
     moves.value.forEach(move => {
       // Handle ball
-      if (move.target === 'ball') {
-        let ballMoveMarkerDiv = document.getElementById('ball-move-marker')
-
+      let ballMoveMarkerDiv = document.getElementById('ball-move-marker')
+     
+      if (move.target === 'ball' || move.target === 'ball-move-marker') {
+        // Create Div if doesn't exist        
         if (!ballMoveMarkerDiv) {
           ballMoveMarkerDiv = document.createElement('div')
           ballMoveMarkerDiv.id = 'ball-move-marker'
@@ -91,10 +101,12 @@
           // ballDiv.setAttribute('draggable', false)
         }
 
+        ballMoveMarkerPosition.value = move.destination
+
         const ballLocationDiv = document.getElementById('ball-slot' + move.destination)
         ballLocationDiv.appendChild(ballMoveMarkerDiv)
       } else { // Handle Players
-        const player = getPlayerFromMove(move);
+        const player = getPlayerFromMove(players, move)
 
         let playerBodyMarkerDiv = document.getElementById(player.name + '-move-marker')
 
@@ -110,6 +122,18 @@
 
         const playerLocation = document.getElementById(player.direction + '-player' + move.destination)
         playerLocation.appendChild(playerBodyMarkerDiv)
+
+        // Make ball move marker interactable if player or playerMoveMarker in same position
+        // TODO isn't working once ball has been passed to a new player
+        const hasPlayerPositionTop = document.getElementById('top-player' + ballMoveMarkerPosition.value).hasChildNodes()
+        const hasPlayerPositionBottom = document.getElementById('bottom-player' + ballMoveMarkerPosition.value).hasChildNodes()
+
+        if (hasPlayerPositionTop || hasPlayerPositionBottom) {
+          ballMoveMarkerDiv.setAttribute('draggable', true)
+          ballMoveMarkerDiv.addEventListener("dragstart", () =>
+            dragTarget.value = 'ball'
+          )
+        }
       }
     })
   }
@@ -118,12 +142,20 @@
   function dropHandler(location) {
     players.forEach(player => {
       // Only allow the ball to move if a player is on the same square
-      if (dragTarget.value === 'ball' && player.position === ballPosition.value && isValidMove(ballPosition.value, location, 2, cols.value, rows.value)) {
-        moves.value.push({
-          target: 'ball',
-          start: ballPosition,
-          destination: location,
-        })
+      if (dragTarget.value === 'ball' && player.position === ballPosition.value && isValidMove(ballMoveMarkerPosition.value ?? ballPosition.value, location, 2, cols.value, rows.value)) {
+        if (ballMoveMarkerPosition.value) { // Handle moving ball after moving
+          secondaryMove.value.push({
+            target: 'ball',
+            start: ballMoveMarkerPosition.value,
+            destination: location,
+          })
+        } else {
+          moves.value.push({
+            target: 'ball',
+            start: ballPosition.value,
+            destination: location,
+          })
+        }
       }
 
       if (player.name === dragTarget.value && !player.hasMoved && isValidMove(player.position, location, player.movement, cols.value, rows.value)) {
@@ -131,7 +163,7 @@
         if (player.position === ballPosition.value) {
           moves.value.push({
             target: 'ball',
-            start: ballPosition,
+            start: ballPosition.value,
             destination: location,
           })
         }
@@ -142,11 +174,12 @@
           destination: location,
         })
 
-        player.hasMoved = true;
+        player.hasMoved = true
       }
     })
 
-    placeMoveMarkers()
+    placeMoveMarkers(moves)
+    placeMoveMarkers(secondaryMove)
   }
 
 
@@ -155,7 +188,7 @@
   //   players.forEach(player => {
   //     // Only allow the ball to move if a player is on the same square
   //     if (dragTarget.value === 'ball' && player.position === ballPosition.value && isValidMove(ballPosition.value, location, 2, cols.value, rows.value)) {
-  //       ballPosition.value = location;
+  //       ballPosition.value = location
   //     }
 
   //     if (player.name === dragTarget.value && isValidMove(player.position, location, player.movement, cols.value, rows.value)) {
@@ -172,9 +205,9 @@
   // }
 
   onMounted(() => {
-    placePlayers();
+    placePlayers()
 
-    const draggableElements = document.querySelectorAll('[draggable="true"]');
+    const draggableElements = document.querySelectorAll('[draggable="true"]')
 
     draggableElements.forEach(draggableElement => {
       draggableElement.addEventListener("dragstart", (event) =>

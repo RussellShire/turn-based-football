@@ -99,6 +99,12 @@ const range = (start, end) => {
     return start
   }
 
+  export const getPlayerFromMove = (players, move) => {
+    return players.filter(player => player.name === move.target)[0]
+  }
+
+  
+
 
 //   const currentlyHighlighted = ref([]);
 
