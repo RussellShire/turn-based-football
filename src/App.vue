@@ -10,26 +10,37 @@
   const dragTarget = ref()
 
   const moves = ref([])
-  const secondaryMove = ref([]) // Bit messy this, hacked in to get it working
 
   const makeMoves = () => {
-    moves.value.forEach(move => {
-      const nextMoveAsArray = nextMoveArray(move.start, move.destination)[0]
-      const nextMoveString = nextMoveAsArray[0] + '-' + nextMoveAsArray[1]
-      move.start = nextMoveString
-      let player = null
+    console.log(moves.value, moves.value.length)
+    if (moves.value.length) {
+      moves.value.forEach(move => {
+        const nextMoveAsArray = nextMoveArray(move.start, move.destination)[0]
+        const nextMoveString = nextMoveAsArray[0] + '-' + nextMoveAsArray[1]
+        move.start = nextMoveString
+        let player = null
 
-      if(move.target === 'ball') {
-        ballPosition.value = nextMoveString
-      } else if (move.target === 'ball-move-marker') {
-        ballMoveMarkerPosition.value = nextMoveString
-      } else {
-        player = getPlayerFromMove(players, move)       
+        if (move.target === 'ball') {
+          ballPosition.value = nextMoveString
+        } else if (move.target === 'ball-move-marker') {
+          ballMoveMarkerPosition.value = nextMoveString
+        } else {
+          player = getPlayerFromMove(players, move)
 
-        player.position = nextMoveString
-      }
+          player.position = nextMoveString
+        }
 
-      if (move.start === move.destination) {
+        if (move.start === move.destination) {
+          // Add a new move from the next move
+          if (move.nextMove) {
+            moves.value.push({
+              target: move.target,
+              start: move.start,
+              destination: move.nextMove.shift(),
+              nextMove: move.nextMove.length ? move.nextMove : [],
+            })
+          }
+
           // Remove move from moves array
           moves.value = moves.value.filter(item => item !== move)
 
@@ -38,20 +49,15 @@
           if (divToRemove) {
             divToRemove.remove()
           }
-      }
+        }
 
-      if (player) {
-        // Set player ready to move again
-        player.hasMoved = false
-      }
-    })
+        if (player) {
+          // Set player ready to move again
+          player.hasMoved = false
+        }
+      })
 
-    placePlayers()
-
-    // Add in kicking the ball after moving
-    if (!moves.value.length && secondaryMove.value.length) {
-      moves.value.push(...secondaryMove.value)
-      console.log('pushed', moves.value)
+      placePlayers()
     }
   }
 
@@ -140,21 +146,34 @@
 
   // Store moves dropHandler
   function dropHandler(location) {
+    console.log(moves.value)
+    let ballMove = moves.value.filter(move => move.target === 'ball')[0];
+
     players.forEach(player => {
       // Only allow the ball to move if a player is on the same square
       if (dragTarget.value === 'ball' && player.position === ballPosition.value && isValidMove(ballMoveMarkerPosition.value ?? ballPosition.value, location, 2, cols.value, rows.value)) {
-        if (ballMoveMarkerPosition.value) { // Handle moving ball after moving
-          secondaryMove.value.push({
-            target: 'ball',
-            start: ballMoveMarkerPosition.value,
-            destination: location,
-          })
-        } else {
+        // if (ballMoveMarkerPosition.value) { // Handle moving ball after moving
+        //   secondaryMove.value.push({
+        //     target: 'ball',
+        //     start: ballMoveMarkerPosition.value,
+        //     destination: location,
+        //   })
+        // } else {
+        //   moves.value.push({
+        //     target: 'ball',
+        //     start: ballPosition.value,
+        //     destination: location,
+        //   })
+        // }
+
+        if (!ballMove) {
           moves.value.push({
             target: 'ball',
             start: ballPosition.value,
             destination: location,
           })
+        } else {
+          ballMove.nextMove = [location]
         }
       }
 
@@ -168,6 +187,10 @@
           })
         }
 
+        if (player.position === ballMoveMarkerPosition.value) {
+            ballMove.nextMove = [location]
+        }
+
         moves.value.push({
           target: player.name,
           start: player.position,
@@ -179,7 +202,6 @@
     })
 
     placeMoveMarkers(moves)
-    placeMoveMarkers(secondaryMove)
   }
 
 
